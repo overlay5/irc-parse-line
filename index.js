@@ -21,6 +21,16 @@ function parse(message) {
     throw new InvalidMessage
 
   let pos = 0
+  /**
+   * @type {{
+   *   command: string,
+   *   servername: string,
+   *   nickname: string,
+   *   user: string,
+   *   host: string,
+   *   tags: { string: string|boolean },
+   * }}
+   */
   const parsed = {}
 
   if (message[pos] === '@') {

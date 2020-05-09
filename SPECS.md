@@ -13,6 +13,34 @@
 <vendor>        ::= <host>
 ```
 
+### RFC 1459 Section 2.3.1
+
+* https://tools.ietf.org/html/rfc1459
+
+```
+<message>    ::= [':' <prefix> <SPACE> ] <command> <params> <crlf>
+<prefix>     ::= <servername> | <nick> [ '!' <user> ] [ '@' <host> ]
+<command>    ::= <letter> { <letter> } | <number> <number> <number>
+<SPACE>      ::= ' ' { ' ' }
+<params>     ::= <SPACE> [ ':' <trailing> | <middle> <params> ]
+<middle>     ::= <Any *non-empty* sequence of octets not including SPACE or NUL or CR or LF, the first of which may not be ':'>
+<trailing>   ::= <Any, possibly *empty*, sequence of octets not including NUL or CR or LF>
+<crlf>       ::= CR LF
+<target>     ::= <to> [ "," <target> ]
+<to>         ::= <channel> | <user> '@' <servername> | <nick> | <mask>
+<channel>    ::= ('#' | '&') <chstring>
+<servername> ::= <host>
+<host>       ::= see RFC 952 [DNS:4] for details on allowed hostnames
+<nick>       ::= <letter> { <letter> | <number> | <special> }
+<mask>       ::= ('#' | '$') <chstring>
+<chstring>   ::= <any 8bit code except SPACE, BELL, NUL, CR, LF and comma (',')>
+<user>       ::= <nonwhite> { <nonwhite> }
+<letter>     ::= 'a' ... 'z' | 'A' ... 'Z'
+<number>     ::= '0' ... '9'
+<special>    ::= '-' | '[' | ']' | '\' | '`' | '^' | '{' | '}'
+<nonwhite>   ::= <any 8bit code except SPACE (0x20), NUL (0x0), CR (0xd), and LF (0xa)>
+```
+
 
 ### RFC 2812 Section 2.3.1
 
@@ -35,8 +63,7 @@ msgtarget  =  msgto *( "," msgto )
 msgto      =  channel / ( user [ "%" host ] "@" servername )
 msgto      =/ ( user "%" host ) / targetmask
 msgto      =/ nickname / ( nickname "!" user "@" host )
-channel    =  ( "#" / "+" / ( "!" channelid ) / "&" ) chanstring
-              [ ":" chanstring ]
+channel    =  ( "#" / "+" / ( "!" channelid ) / "&" ) chanstring [ ":" chanstring ]
 servername =  hostname
 host       =  hostname / hostaddr
 hostname   =  shortname *( "." shortname )
@@ -65,3 +92,7 @@ hexdigit   =  digit / "A" / "B" / "C" / "D" / "E" / "F"
 special    =  %x5B-60 / %x7B-7D
                  ; "[", "]", "\", "`", "_", "^", "{", "|", "}"
 ```
+
+## Reference IRC message parser tests:
+
+* https://github.com/ircdocs/parser-tests

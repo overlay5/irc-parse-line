@@ -35,10 +35,11 @@ describe('irc message', function () {
   })
 
   it('should parse tags before the message', function () {
-    const result = parse('@enabled-tag;color=#0000FF;display-name=kesor6 :tmi.twitch.tv GLOBALUSERSTATE')
+    const result = parse('@enabled-tag;color=#0000FF;empty-value=;display-name=kesor6 :tmi.twitch.tv GLOBALUSERSTATE')
     assert.deepEqual(result.tags, {
       'enabled-tag': true,
       'color': '#0000FF',
+      'empty-value': '',
       'display-name': 'kesor6',
     })
   })

@@ -5,7 +5,7 @@
 // ** https://ircv3.net/specs/extensions/message-tags.html
 
 // Based on:
-// https://github.com/grawity/code/blob/master/lib/python/nullroute/irc/parse.py
+// https://github.com/grawity/irc-parse-tests
 // Parser for IRC protocol messages (RFC 1459 + IRCv3 message-tag extension)
 // (c) 2012-2014 Mantas Mikulėnas <grawity@gmail.com>
 // Released under the MIT License (dist/LICENSE.mit)

@@ -35,6 +35,8 @@ function parse(message) {
       })
     )
     pos = tags_end + 1
+    while (message[pos] === ' ') // per RFC1459 multiple space separation is allowed
+      pos++
   }
 
   if (message[pos] === ':') {
@@ -56,7 +58,18 @@ function parse(message) {
     } else {
       parsed.nickname = prefix
     }
+    pos = prefix_end + 1 // the ' ' at the end of prefix
+    while (message[pos] === ' ') // per RFC1459 multiple space separation is allowed
+      pos++
   }
+
+  let command_end = message.indexOf(' ', pos)
+  if (command_end === -1)
+    command_end = message.length
+  parsed.command =  message.slice(pos, command_end)
+  if (!parsed.command || !RegExp(/^(\d{3}|[A-Za-z]+)$/).test(parsed.command))
+    throw new InvalidMessage
+  pos = command_end
 
   return parsed
 }

@@ -1,0 +1,25 @@
+{
+  "name": "irc-protocol",
+  "version": "0.0.1",
+  "description": "Parser for IRC Messages",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/overlay5/irc-protocol.git"
+  },
+  "keywords": [
+    "irc"
+  ],
+  "author": "Evgeny Zislis <evgeny.zislis@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/overlay5/irc-protocol/issues"
+  },
+  "homepage": "https://github.com/overlay5/irc-protocol#readme",
+  "devDependencies": {
+    "mocha": "^7.1.2"
+  }
+}

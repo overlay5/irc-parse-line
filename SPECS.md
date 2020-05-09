@@ -93,6 +93,116 @@ special    =  %x5B-60 / %x7B-7D
                  ; "[", "]", "\", "`", "_", "^", "{", "|", "}"
 ```
 
+
+## Client-to-Client Protocol (CTCP)
+
+* https://tools.ietf.org/id/draft-oakley-irc-ctcp-01.html
+
+CTCP queries are sent with the PRIVMSG IRC command, and CTCP replies
+are sent with NOTICE command. To indicate a CTCP query or reply, the
+body of the message (the second parameter) begins with the CTCP delimiter.
+
+```
+  delim    = %x01
+  command  = 1*( %x02-09 / %x0B-0C / %x0E-1F / %x21-FF )
+                ; any octet except NUL, delim, CR, LF, and " "
+  params   = 1*( %x02-09 / %x0B-0C / %x0E-FF )
+                ; any octet except NUL, delim, CR, and LF
+  body     = delim command [ SPACE params ] [ delim ]
+```
+
+Example:
+
+    :dan!u@localhost PRIVMSG #ircv3 :\x01ACTION writes some specs!\x01
+
+## CTCP Commands
+
+*  Metadata query
+
+    :alice!a@localhost PRIVMSG bob :\x01VERSION\x01
+    :bob!b@localhost NOTICE alice :\x01VERSION SaberChat 27.5\x01
+
+* Extended query
+
+    :alice!a@localhost PRIVMSG bob :\x01PING 1473523796 918320\x01
+    :bob!b@localhost NOTICE alice :\x01PING 1473523796 918320\x01
+
+* A.1 ACTION
+  * Type:    Extended Formatting
+  * Params:  ACTION <text>
+
+* A.2 CLIENTINFO
+  * Type:   Extended Query
+  * Reply:  CLIENTINFO <tokens>
+
+* A.3 DCC
+  * Type:    Extended Query
+  * Params:  DCC <type> <argument> <host> <port>
+
+* A.4 FINGER
+  * Type:   Metadata Query
+  * Reply:  FINGER <info>
+
+* A.5. PING
+  * Type:    Extended Query
+  * Params:  PING <info>
+
+* A.7. TIME
+  * Type:    Extended Query
+  * Params:  TIME <timestring>
+
+* A.8. VERSION
+  * Type:   Metadata Query
+  * Reply:  VERSION <verstring>
+
+* A.9. USERINFO
+  * Type:   Metadata Query
+  * Reply:  USERINFO <info>
+
+
+## IRC Message IDs Extention
+
+* https://ircv3.net/specs/extensions/message-ids.html
+
+
 ## Reference IRC message parser tests:
 
 * https://github.com/ircdocs/parser-tests
+
+
+## IRC Commands
+
+* Once a user has joined a channel, they receive notice about all
+  commands their server receives which affect the channel.  This
+  includes MODE, KICK, PART, QUIT and of course PRIVMSG/NOTICE.
+
+* Command: JOIN
+  Parameters: <channel>{,<channel>} [<key>{,<key>}]
+
+* Command: PART
+  Parameters: <channel>{,<channel>}
+
+* Command: MODE
+  Channel Modes - Parameters: <channel> {[+|-]|o|p|s|i|t|n|b|v} [<limit>] [<user>] [<ban mask>]
+  User Modes - Parameters: <nickname> {[+|-]|i|w|s|o}
+
+* Command: TOPIC
+  Parameters: <channel> [<topic>]
+
+* Command: NAMES
+  Parameters: [<channel>{,<channel>}]
+
+* Command: LIST
+  Parameters: [<channel>{,<channel>} [<server>]]
+
+* Command: KICK
+  Parameters: <channel> <user> [<comment>]
+
+* Command: PRIVMSG
+  Parameters: <receiver>{,<receiver>} <text to be sent>
+
+* Command: NOTICE
+  Parameters: <nickname> <text>
+
+* Command: PING
+  Parameters: <server1> [<server2>]

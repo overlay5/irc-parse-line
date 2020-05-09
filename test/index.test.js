@@ -1,7 +1,7 @@
 const assert = require('assert').strict
 const { parse, InvalidMessage } = require('../index')
 
-describe('message prefix', function () {
+describe('irc message', function () {
   it('should throw an error on invalid messages', function () {
     assert.throws(function () { parse()    }, InvalidMessage)
     assert.throws(function () { parse('')  }, InvalidMessage)

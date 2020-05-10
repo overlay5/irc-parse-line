@@ -46,23 +46,23 @@ describe('irc message', function () {
 
   it('should parse commands', function () {
     const result = parse('PING')
-    assert.deepEqual(result.command, 'PING')
+    assert.equal(result.command, 'PING')
   })
 
   it('should parse tags separated by multiple spaces from prefix', function () {
     const result = parse('@tagbool;tag-empty=;tag-val=xx    :prefixuser!named@at.server.com  JOIN #kesor6')
     assert.deepEqual(result.tags, { tagbool: true, 'tag-empty': '', 'tag-val': 'xx' })
-    assert.deepEqual(result.nickname, 'prefixuser')
-    assert.deepEqual(result.user, 'named')
-    assert.deepEqual(result.host, 'at.server.com')
+    assert.equal(result.nickname, 'prefixuser')
+    assert.equal(result.user, 'named')
+    assert.equal(result.host, 'at.server.com')
   })
 
   it('should parse a command separated by multiple spaces from prefix', function () {
     const result = parse(':prefixuser!named@at.server.com   JOIN   #kesor6')
-    assert.deepEqual(result.nickname, 'prefixuser')
-    assert.deepEqual(result.user, 'named')
-    assert.deepEqual(result.host, 'at.server.com')
-    assert.deepEqual(result.command, 'JOIN')
+    assert.equal(result.nickname, 'prefixuser')
+    assert.equal(result.user, 'named')
+    assert.equal(result.host, 'at.server.com')
+    assert.equal(result.command, 'JOIN')
   })
 
   it('should throw exception on illegal commands', function () {

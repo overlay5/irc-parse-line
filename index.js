@@ -75,11 +75,26 @@ function parse(message) {
 
   let command_end = message.indexOf(' ', pos)
   if (command_end === -1)
-    command_end = message.length
+    command_end = message.replace(/\s*\r\n$/,'').length
   parsed.command =  message.slice(pos, command_end)
   if (!parsed.command || !RegExp(/^(\d{3}|[A-Za-z]+)$/).test(parsed.command))
     throw new InvalidMessage
   pos = command_end
+  while (message[pos] === ' ')
+    pos++
+
+  let parameters_end = message.replace(/\s*\r\n$/, '').length
+
+  parsed.params = {}
+
+  switch (parsed.command) {
+    case 'ROOMSTATE': // twitch extention - more in tags
+    case 'USERSTATE': // twitch extention - more in tags
+    case 'JOIN':
+    case 'PART':
+      parsed.params.channel = message.slice(pos, parameters_end)
+      break;
+  }
 
   return parsed
 }

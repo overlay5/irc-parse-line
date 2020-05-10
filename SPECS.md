@@ -206,3 +206,37 @@ Example:
 
 * Command: PING
   Parameters: <server1> [<server2>]
+
+
+## Twitch IRC Extended Commands
+
+* Supports generic commands - https://dev.twitch.tv/docs/irc/guide#generic-irc-commands
+* Adds additional commands - https://dev.twitch.tv/docs/irc/commands
+
+* Command: CLEARCHAT
+  Prototype: `:tmi.twitch.tv CLEARCHAT #<channel> :<user>`
+  Example: `:tmi.twitch.tv CLEARCHAT #dallas` - clear ALL chat
+  Example: `:tmi.twitch.tv CLEARCHAT #dallas :ronni` - clear single user's messages
+
+* Command: CLEARMSG
+  Prototype: `@login=<login>;target-msg-id=<target-msg-id> :tmi.twitch.tv CLEARMSG #<channel> :<message>`
+  Example: `@login=ronni;target-msg-id=abc-123-def :tmi.twitch.tv CLEARMSG #dallas :HeyGuys`
+
+* Command: HOSTTARGET
+  Prototype: `:tmi.twitch.tv HOSTTARGET #hosting_channel :<channel> [<number-of-viewers>]` - starts host
+  Prototype: `:tmi.twitch.tv HOSTTARGET #hosting_channel :- [<number-of-viewers>]` - ends host
+
+* Command: NOTICE
+  Prototype: `@msg-id=<msg id>:tmi.twitch.tv NOTICE #<channel> :<message>`
+  Example: `@msg-id=slow_off :tmi.twitch.tv NOTICE #dallas :This room is no longer in slow mode.`
+
+* Command: RECONNECT - Rejoin channels after a restart.
+
+* Command: ROOMSTATE
+  Prototype: `:tmi.twitch.tv ROOMSTATE #<channel>`
+
+* Command: USERNOTICE
+  Prototype: `:tmi.twitch.tv USERNOTICE #<channel> :message`
+
+* Command: USERSTATE
+  Prototype: `:tmi.twitch.tv USERSTATE #<channel>`

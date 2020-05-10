@@ -107,4 +107,27 @@ describe('irc message', function () {
     assert.equal(parse('USERSTATE #kesor6 \r\n').params.channel, '#kesor6')
   })
 
+  it('should support the channel MODE command', function () {
+    const result = parse('MODE #Finnish +o Kilroy')
+    assert.equal(result.params.channel, '#Finnish')
+    assert.equal(result.params.modes, '+o')
+    assert.equal(result.params.modeparams, 'Kilroy')
+  })
+
+  it('should throw errors on user MODE commands', function () {
+    assert.throws(function () { parse('MODE Wiz -o') }, InvalidMessage)
+  })
+
+  it('should support PRIVMSG with a single target', function () {
+    const result = parse(`PRIVMSG Angel :yes I'm receiving it !`)
+    assert.equal(result.command, 'PRIVMSG')
+    assert.equal(result.params.target, 'Angel')
+    assert.equal(result.params.message, `yes I'm receiving it !`)
+
+    assert.equal(parse(`PRIVMSG  #kesor6  :some text`).params.target, '#kesor6')
+    assert.equal(parse(`PRIVMSG  #kesor6  :some text`).params.message, 'some text')
+    assert.equal(parse(`PRIVMSG  #kesor6  :some text\r\n`).params.target, '#kesor6')
+    assert.equal(parse(`PRIVMSG  #kesor6  :some text\r\n`).params.message, 'some text')
+  })
+
 })

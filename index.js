@@ -94,6 +94,18 @@ function parse(message) {
     case 'PART':
       parsed.params.channel = message.slice(pos, parameters_end)
       break;
+    case 'MODE':
+      [ channel, modes, modeparams ] = message.slice(pos, parameters_end).split(' ')
+      if (/^[#+&]/.test(channel))
+        parsed.params = { channel, modes, modeparams }
+      else
+        throw new InvalidMessage
+      break;
+    case 'PRIVMSG':
+      const msgtargets_end = message.indexOf(':')
+      parsed.params.target = message.slice(pos, msgtargets_end - 1).trim() //?
+      parsed.params.message = message.slice(msgtargets_end + 1, parameters_end) //?
+      break;
   }
 
   return parsed

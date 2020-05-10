@@ -10,17 +10,53 @@
 // (c) 2012-2014 Mantas Mikulėnas <grawity@gmail.com>
 // Released under the MIT License (dist/LICENSE.mit)
 
-class InvalidMessage extends Error {}
+class InvalidMessage extends Error {
+  message
+  constructor(message = "Parsing failed") {
+    super()
+    this.message = `IRC Invalid Message: ${message}`
+  }
+}
+
+const RE_EOL = / *[\r\n]*$/g
+const RE_CMD_VALIDATION = /^(\d{3}|[A-Za-z]+)$/
 
 /**
- * Parsing a single line IRC message
- * @param {string} message the irc message to parse
+ * Find next non-space character starting from current position
+ * Per RFC1459 multiple space separation is allowed
+ *
+ * @param {string} message the irc message
+ * @param {number} currentPos
+ * @returns {number} first non space position after currentPos
  */
-function parse(message) {
-  if (!message)
-    throw new InvalidMessage
+function nonSpacePos (message, currentPos) {
+  let pos = currentPos
+  while (message[pos] === ' ')
+    pos++
+  return pos
+}
 
-  let pos = 0
+/**
+ * Returns the position of last character in the message,
+ * excluding any whitespace and/or \r\n characters at eol.
+ *
+ * @param {string} message the message
+ * @param {number} currentPos current position in the message
+ * @returns {number} the end of line position (length of message)
+ */
+function findEol (message, currentPos) {
+  RE_EOL.lastIndex = currentPos
+  const match = RE_EOL.exec(message)
+  return match ? match.index : message.length
+}
+
+/**
+ * Parse a single line IRC message
+ *
+ * @param {string} line the irc message to parse
+ * @returns object with command, tags and params of parsed irc message
+ */
+function parseIrcLine (line) {
   /**
    * @type {{
    *   command: string,
@@ -29,89 +65,90 @@ function parse(message) {
    *   user: string,
    *   host: string,
    *   tags: { string: string|boolean },
+   *   params: { string: any }
    * }}
    */
   const parsed = {}
 
-  if (message[pos] === '@') {
-    pos++ // '@' at the start of tags
-    const tags_end = message.indexOf(' ', pos)
-    parsed.tags = Object.fromEntries(
-      message.slice(pos, tags_end)
+  let pos = 0
+
+  if (!line || typeof line !== 'string')
+    throw new InvalidMessage()
+
+  if (line[pos] === '@') {
+    pos++ // skip '@' at the start of tags
+    const tagsEnd = line.indexOf(' ', pos)
+    parsed.tags = line.slice(pos, tagsEnd)
       .split(';')
       .map(tag => {
-        [k,v] = tag.split('=')
+        const [k, v] = tag.split('=')
         return [k, typeof v === 'undefined' ? true : v]
       })
-    )
-    pos = tags_end + 1
-    while (message[pos] === ' ') // per RFC1459 multiple space separation is allowed
-      pos++
+    pos = nonSpacePos(line, tagsEnd + 1)
   }
 
-  if (message[pos] === ':') {
+  if (line[pos] === ':') {
     pos++ // ':' at the start of prefix
-    const prefix_end = message.indexOf(' ', pos)
-    const prefix = message.slice(pos, prefix_end)
-    const dot_pos = prefix.indexOf('.')
-    const user_pos = prefix.indexOf('!')
-    const host_pos = prefix.indexOf('@', user_pos-1)
-    if (user_pos !== -1 && host_pos !== -1) {
-      parsed.nickname = prefix.slice(0,user_pos)
-      parsed.user = prefix.slice(user_pos+1,host_pos)
-      parsed.host = prefix.slice(host_pos+1)
-    } else if (host_pos !== -1) {
-      parsed.nickname = prefix.slice(0,host_pos)
-      parsed.host = prefix.slice(host_pos+1)
-    } else if (dot_pos !== -1) {
+    const prefixEnd = line.indexOf(' ', pos)
+    const prefix = line.slice(pos, prefixEnd)
+    const dotPos = prefix.indexOf('.')
+    const userPos = prefix.indexOf('!')
+    const hostPos = prefix.indexOf('@', userPos - 1)
+    if (userPos !== -1 && hostPos !== -1) {
+      parsed.nickname = prefix.slice(0, userPos)
+      parsed.user = prefix.slice(userPos + 1, hostPos)
+      parsed.host = prefix.slice(hostPos + 1)
+    } else if (hostPos !== -1) {
+      parsed.nickname = prefix.slice(0, hostPos)
+      parsed.host = prefix.slice(hostPos + 1)
+    } else if (dotPos !== -1) {
       parsed.servername = prefix
     } else {
       parsed.nickname = prefix
     }
-    pos = prefix_end + 1 // the ' ' at the end of prefix
-    while (message[pos] === ' ') // per RFC1459 multiple space separation is allowed
-      pos++
+    pos = nonSpacePos(line, prefixEnd + 1) // start after ' ' after prefix
   }
 
-  let command_end = message.indexOf(' ', pos)
-  if (command_end === -1)
-    command_end = message.replace(/\s*\r\n$/,'').length
-  parsed.command =  message.slice(pos, command_end)
-  if (!parsed.command || !RegExp(/^(\d{3}|[A-Za-z]+)$/).test(parsed.command))
-    throw new InvalidMessage
-  pos = command_end
-  while (message[pos] === ' ')
-    pos++
+  let commandEnd = line.indexOf(' ', pos)
+  if (commandEnd === -1)
+    commandEnd = findEol(line, pos)
+  parsed.command = line.slice(pos, commandEnd)
+  RE_CMD_VALIDATION.lastIndex = pos
+  parsed.command
+  if (!RE_CMD_VALIDATION.test(parsed.command))
+    throw new InvalidMessage()
+  pos = nonSpacePos(line, commandEnd + 1) // start after ' ' after prefix
 
-  let parameters_end = message.replace(/\s*\r\n$/, '').length
+  const parametersEnd = findEol(line, pos)
 
   parsed.params = {}
 
   switch (parsed.command) {
-    case 'ROOMSTATE': // twitch extention - more in tags
-    case 'USERSTATE': // twitch extention - more in tags
+    case 'ROOMSTATE': // twitch extension - more in tags
+    case 'USERSTATE': // twitch extension - more in tags
     case 'JOIN':
     case 'PART':
-      parsed.params.channel = message.slice(pos, parameters_end)
-      break;
+      parsed.params.channel = line.slice(pos, parametersEnd)
+      break
     case 'MODE':
-      [ channel, modes, modeparams ] = message.slice(pos, parameters_end).split(' ')
-      if (/^[#+&]/.test(channel))
-        parsed.params = { channel, modes, modeparams }
-      else
-        throw new InvalidMessage
-      break;
+      const [channel, modes, modeparams] = line.slice(pos, parametersEnd).split(' ')
+      if (!/^[#+&]/.test(channel))
+        throw new InvalidMessage()
+      parsed.params = { channel, modes, modeparams }
+      break
     case 'PRIVMSG':
-      const msgtargets_end = message.indexOf(':')
-      parsed.params.target = message.slice(pos, msgtargets_end - 1).trim() //?
-      parsed.params.message = message.slice(msgtargets_end + 1, parameters_end) //?
-      break;
+      const msgtargetsEnd = line.indexOf(':')
+      parsed.params.target = line.slice(pos, msgtargetsEnd - 1).trim()
+      parsed.params.message = line.slice(msgtargetsEnd + 1, parametersEnd)
+      break
   }
 
   return parsed
 }
 
 module.exports = {
-  parse,
+  parseIrcLine,
+  findEol,
+  nonSpacePos,
   InvalidMessage
 }

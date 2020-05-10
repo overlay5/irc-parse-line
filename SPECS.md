@@ -170,7 +170,7 @@ Example:
 * https://github.com/ircdocs/parser-tests
 
 
-## IRC Commands
+## RFC 2812 IRC Commands
 
 * Once a user has joined a channel, they receive notice about all
   commands their server receives which affect the channel.  This

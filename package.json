@@ -1,11 +1,12 @@
 {
-  "name": "irc-protocol",
+  "name": "irc-parse",
   "version": "0.0.1",
   "description": "Parser for IRC Messages",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "test:watch": "mocha --watch"
+    "test:watch": "mocha --watch",
+    "lint": "eslint *.js test/*.js"
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,10 @@
   },
   "homepage": "https://github.com/overlay5/irc-protocol#readme",
   "devDependencies": {
+    "eslint": "^7.0.0",
+    "eslint-plugin-jsdoc": "^25.0.1",
+    "eslint-plugin-mocha": "^6.3.0",
+    "eslint-plugin-node": "^11.1.0",
     "mocha": "^7.1.2"
   }
 }

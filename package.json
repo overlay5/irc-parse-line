@@ -4,8 +4,9 @@
   "description": "Parser for IRC Messages",
   "main": "index.js",
   "scripts": {
-    "test": "node test/github-tests.js && mocha && npm run -s lint",
-    "test:watch": "mocha --watch",
+    "test": "npm run -s test:download && mocha test/**/*.test.js && npm run -s lint",
+    "test:watch": "npm run -s test:download && mocha --watch test/**/*.test.js",
+    "test:download": "node test/github-tests.js",
     "lint": "eslint *.js test/*.js"
   },
   "repository": {
@@ -28,9 +29,10 @@
     "eslint-plugin-jsdoc": "^25.0.1",
     "eslint-plugin-mocha": "^6.3.0",
     "eslint-plugin-node": "^11.1.0",
-    "mocha": "^7.1.2"
+    "mocha": "^7.1.2",
+    "yaml": "^1.9.2"
   },
   "engines": {
-    "node": "> 10"
+    "node": "> 12"
   }
 }

@@ -14,13 +14,13 @@
  * The returned object from a parsed IRC line
  *
  * @typedef {{
- *   command: string,
+ *   verb: string,
  *   servername: string,
  *   nickname: string,
  *   user: string,
  *   host: string,
  *   tags: { string: string|boolean },
- *   params: { string: any }
+ *   params: [ string ]
  * }} ParsedIrcLine
  */
 
@@ -35,6 +35,14 @@ class InvalidMessage extends Error {
 
 const RE_EOL = / *[\r\n]*$/g
 const RE_CMD_VALIDATION = /^(\d{3}|[A-Za-z]+)$/
+
+const TAGS_UNESCAPE = {
+  ':': ';',
+  's': ' ',
+  '\\': '\\',
+  'r': '\r',
+  'n': '\n',
+}
 
 /**
  * Find next non-space character starting from current position
@@ -69,7 +77,7 @@ function findEol(message, currentPos) {
  * Parse a single line IRC message
  *
  * @param {string} line the irc message to parse
- * @returns {ParsedIrcLine} object with command, tags and params of parsed irc message
+ * @returns {ParsedIrcLine} object with verb, tags and params of parsed irc message
  */
 function parseIrcLine(line) {
   /** @type {ParsedIrcLine} */
@@ -83,11 +91,24 @@ function parseIrcLine(line) {
   if (line[pos] === '@') {
     pos++ // skip '@' at the start of tags
     const tagsEnd = line.indexOf(' ', pos)
+    let escNext = false
     parsed.tags = line.slice(pos, tagsEnd)
       .split(';')
       .map(tag => {
-        const [k, v] = tag.split('=')
-        return [k, typeof v === 'undefined' ? true : v]
+        let [k, v] = tag.split('=')
+        if (v && v.length > 0)
+          v = v.split('').map((char, idx, arr) => {
+            if (escNext) {
+              escNext = false
+              return TAGS_UNESCAPE[char] // or undefined
+            } else {
+              if (char === '\\')
+                escNext = true
+              else
+                return char
+            }
+          }).join('')
+        return [k, typeof v === 'undefined' ? '' : v]
       })
     pos = nonSpacePos(line, tagsEnd + 1)
   }
@@ -100,53 +121,45 @@ function parseIrcLine(line) {
     const userPos = prefix.indexOf('!')
     const hostPos = prefix.indexOf('@', userPos - 1)
     if (userPos !== -1 && hostPos !== -1) {
-      parsed.nickname = prefix.slice(0, userPos)
+      parsed.source = prefix.slice(0, userPos)
       parsed.user = prefix.slice(userPos + 1, hostPos)
       parsed.host = prefix.slice(hostPos + 1)
     } else if (hostPos !== -1) {
-      parsed.nickname = prefix.slice(0, hostPos)
+      parsed.source = prefix.slice(0, hostPos)
       parsed.host = prefix.slice(hostPos + 1)
     } else if (dotPos !== -1) {
-      parsed.servername = prefix
+      parsed.source = prefix
     } else {
-      parsed.nickname = prefix
+      parsed.source = prefix
     }
     pos = nonSpacePos(line, prefixEnd + 1) // start after ' ' after prefix
   }
 
-  let commandEnd = line.indexOf(' ', pos)
-  if (commandEnd === -1)
-    commandEnd = findEol(line, pos)
-  parsed.command = line.slice(pos, commandEnd)
+  let verbEnd = line.indexOf(' ', pos)
+  if (verbEnd === -1)
+    verbEnd = findEol(line, pos)
+  parsed.verb = line.slice(pos, verbEnd)
   RE_CMD_VALIDATION.lastIndex = pos
-  if (!RE_CMD_VALIDATION.test(parsed.command))
+  if (!RE_CMD_VALIDATION.test(parsed.verb))
     throw new InvalidMessage()
-  pos = nonSpacePos(line, commandEnd + 1) // start after ' ' after prefix
+  pos = nonSpacePos(line, verbEnd + 1) // start after ' ' after prefix
 
   const parametersEnd = findEol(line, pos)
+  const trailParamStart = line.indexOf(':', pos)
 
-  parsed.params = {}
+  parsed.params = []
 
-  switch (parsed.command) {
-    case 'ROOMSTATE': // twitch extension - more in tags
-    case 'USERSTATE': // twitch extension - more in tags
-    case 'JOIN':
-    case 'PART':
-      parsed.params.channel = line.slice(pos, parametersEnd)
-      break
-    case 'MODE': {
-      const [channel, modes, modeparams] = line.slice(pos, parametersEnd).split(' ')
-      if (!/^[#+&]/.test(channel))
-        throw new InvalidMessage()
-      parsed.params = { channel, modes, modeparams }
-      break
-    }
-    case 'PRIVMSG': {
-      const msgtargetsEnd = line.indexOf(':')
-      parsed.params.target = line.slice(pos, msgtargetsEnd - 1).trim()
-      parsed.params.message = line.slice(msgtargetsEnd + 1, parametersEnd)
-      break
-    }
+  if (parsed.verb) {
+    if (trailParamStart === -1)
+      parsed.params = line.slice(pos, parametersEnd).split(' ')
+    else
+      parsed.params = line.slice(pos, trailParamStart - 1).split(' ')
+    if (parsed.params[parsed.params.length - 1] === '')
+      parsed.params.pop()
+    if (trailParamStart !== -1)
+      parsed.params.push(line.slice(trailParamStart + 1)) // skip colon
+    if (parsed.params.length === 0)
+      delete parsed.params
   }
 
   return parsed

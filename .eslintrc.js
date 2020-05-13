@@ -31,6 +31,7 @@ module.exports = {
     ],
     rules: {
       'prefer-arrow-callback': 'off',
+      'node/no-unpublished-require': 'off',
     }
   }],
   rules: {

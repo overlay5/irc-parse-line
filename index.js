@@ -10,10 +10,25 @@
 // (c) 2012-2014 Mantas Mikulėnas <grawity@gmail.com>
 // Released under the MIT License (dist/LICENSE.mit)
 
+/**
+ * The returned object from a parsed IRC line
+ *
+ * @typedef {{
+ *   command: string,
+ *   servername: string,
+ *   nickname: string,
+ *   user: string,
+ *   host: string,
+ *   tags: { string: string|boolean },
+ *   params: { string: any }
+ * }} ParsedIrcLine
+ */
+
 class InvalidMessage extends Error {
   message
-  constructor(message = "Parsing failed") {
-    super()
+
+  constructor(message = 'Parsing failed') {
+    super(message)
     this.message = `IRC Invalid Message: ${message}`
   }
 }
@@ -26,10 +41,10 @@ const RE_CMD_VALIDATION = /^(\d{3}|[A-Za-z]+)$/
  * Per RFC1459 multiple space separation is allowed
  *
  * @param {string} message the irc message
- * @param {number} currentPos
+ * @param {number} currentPos index of the current position in message
  * @returns {number} first non space position after currentPos
  */
-function nonSpacePos (message, currentPos) {
+function nonSpacePos(message, currentPos) {
   let pos = currentPos
   while (message[pos] === ' ')
     pos++
@@ -44,7 +59,7 @@ function nonSpacePos (message, currentPos) {
  * @param {number} currentPos current position in the message
  * @returns {number} the end of line position (length of message)
  */
-function findEol (message, currentPos) {
+function findEol(message, currentPos) {
   RE_EOL.lastIndex = currentPos
   const match = RE_EOL.exec(message)
   return match ? match.index : message.length
@@ -54,20 +69,10 @@ function findEol (message, currentPos) {
  * Parse a single line IRC message
  *
  * @param {string} line the irc message to parse
- * @returns object with command, tags and params of parsed irc message
+ * @returns {ParsedIrcLine} object with command, tags and params of parsed irc message
  */
-function parseIrcLine (line) {
-  /**
-   * @type {{
-   *   command: string,
-   *   servername: string,
-   *   nickname: string,
-   *   user: string,
-   *   host: string,
-   *   tags: { string: string|boolean },
-   *   params: { string: any }
-   * }}
-   */
+function parseIrcLine(line) {
+  /** @type {ParsedIrcLine} */
   const parsed = {}
 
   let pos = 0
@@ -114,7 +119,6 @@ function parseIrcLine (line) {
     commandEnd = findEol(line, pos)
   parsed.command = line.slice(pos, commandEnd)
   RE_CMD_VALIDATION.lastIndex = pos
-  parsed.command
   if (!RE_CMD_VALIDATION.test(parsed.command))
     throw new InvalidMessage()
   pos = nonSpacePos(line, commandEnd + 1) // start after ' ' after prefix
@@ -130,17 +134,19 @@ function parseIrcLine (line) {
     case 'PART':
       parsed.params.channel = line.slice(pos, parametersEnd)
       break
-    case 'MODE':
+    case 'MODE': {
       const [channel, modes, modeparams] = line.slice(pos, parametersEnd).split(' ')
       if (!/^[#+&]/.test(channel))
         throw new InvalidMessage()
       parsed.params = { channel, modes, modeparams }
       break
-    case 'PRIVMSG':
+    }
+    case 'PRIVMSG': {
       const msgtargetsEnd = line.indexOf(':')
       parsed.params.target = line.slice(pos, msgtargetsEnd - 1).trim()
       parsed.params.message = line.slice(msgtargetsEnd + 1, parametersEnd)
       break
+    }
   }
 
   return parsed

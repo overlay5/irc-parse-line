@@ -4,7 +4,7 @@
   "description": "Parser for IRC Messages",
   "main": "index.js",
   "scripts": {
-    "test": "mocha && npm run -s lint",
+    "test": "node test/github-tests.js && mocha && npm run -s lint",
     "test:watch": "mocha --watch",
     "lint": "eslint *.js test/*.js"
   },

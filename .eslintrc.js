@@ -6,12 +6,6 @@ module.exports = {
     node: true,
     mocha: true
   },
-  extends: [
-    'eslint:recommended',
-    'plugin:mocha/recommended',
-    'plugin:jsdoc/recommended',
-    'plugin:node/recommended',
-  ],
   globals: {},
   parser: 'babel-eslint',
   parserOptions: {
@@ -22,7 +16,13 @@ module.exports = {
     'mocha',
     'jsdoc',
     'babel',
-    'node',
+    'editorconfig',
+  ],
+  extends: [
+    'eslint:recommended',
+    'plugin:jsdoc/recommended',
+    'plugin:node/recommended',
+    'plugin:editorconfig/noconflict',
   ],
   overrides: [{
     files: ['test/**/*.test.js'],

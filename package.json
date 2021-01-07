@@ -1,7 +1,7 @@
 {
-  "name": "irc-parse",
+  "name": "irc-parse-line",
   "version": "0.1.0",
-  "description": "Parser of IRC Messages",
+  "description": "Parser of IRC Message Lines",
   "main": "index.js",
   "scripts": {
     "test": "npm run -s test:download && mocha test/**/*.test.js && npm run -s lint",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/overlay5/irc-parse.git"
+    "url": "git+https://github.com/overlay5/irc-parse-line.git"
   },
   "keywords": [
     "irc"
@@ -19,9 +19,9 @@
   "author": "Evgeny Zislis <evgeny.zislis@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/overlay5/irc-parse/issues"
+    "url": "https://github.com/overlay5/irc-parse-line/issues"
   },
-  "homepage": "https://github.com/overlay5/irc-parse#readme",
+  "homepage": "https://github.com/overlay5/irc-parse-line#readme",
   "devDependencies": {
     "babel-eslint": "^10.1.0",
     "eslint": "^7.17.0",

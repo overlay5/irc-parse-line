@@ -33,7 +33,7 @@ class InvalidMessage extends Error {
   }
 }
 
-const RE_EOL = / *[\r\n]*$/g
+const RE_EOL = /[\r\n]*$/g
 const RE_CMD_VALIDATION = /^(\d{3}|[A-Za-z]+)$/
 
 const TAGS_UNESCAPE = {
@@ -99,8 +99,9 @@ function parseIrcLine(line) {
         if (v && v.length > 0)
           v = v.split('').map((char, idx, arr) => {
             if (escNext) {
+              const unescapedTags = TAGS_UNESCAPE[char]
               escNext = false
-              return TAGS_UNESCAPE[char] // or undefined
+              return typeof (unescapedTags) === 'undefined' ? char : unescapedTags
             } else {
               if (char === '\\')
                 escNext = true
@@ -150,14 +151,16 @@ function parseIrcLine(line) {
   parsed.params = []
 
   if (parsed.verb) {
-    if (trailParamStart === -1)
+    if (trailParamStart === -1) {
       parsed.params = line.slice(pos, parametersEnd).split(' ')
-    else
-      parsed.params = line.slice(pos, trailParamStart - 1).split(' ')
+      while (parsed.params[parsed.params.length - 1] === '')
+        parsed.params.pop()
+    } else { parsed.params = line.slice(pos, trailParamStart - 1).split(' ') }
     if (parsed.params[parsed.params.length - 1] === '')
       parsed.params.pop()
     if (trailParamStart !== -1)
-      parsed.params.push(line.slice(trailParamStart + 1)) // skip colon
+      parsed.params.push(line.slice(trailParamStart + 1, findEol(line)))
+
     if (parsed.params.length === 0)
       delete parsed.params
   }

@@ -7,14 +7,9 @@ describe('find eol', function () {
     assert.equal(findEol('1234567'), 7, 'length of string')
     assert.equal(findEol('1234567', 2), 7, 'length when starting from non-0 position')
     assert.equal(findEol('1234567\r', 2), 7, 'length of string ignoring \\r at eol')
-    assert.equal(findEol('1234567 \r', 2), 7, 'length of string ignoreing spaces and \\r at eol')
     assert.equal(findEol('1234567\n', 2), 7, 'length of string ignoring \\n at eol')
-    assert.equal(findEol('1234567 \n', 2), 7, 'length of string ignoring spaces and \\n at eol')
     assert.equal(findEol('1234567\r\n', 2), 7, 'length of string ignoring mixed \\r\\n at eol')
     assert.equal(findEol('1234567\n\r', 2), 7, 'length of string ignoring mixed \\r\\n at eol')
-    assert.equal(findEol('1234567 \r\n', 2), 7, 'length of string ignoring spaces and mixed \\r\\n at eol')
-    assert.equal(findEol('1234567 \n\r', 2), 7, 'length of string ignoring spaces and mixed \\r\\n at eol')
-    assert.equal(findEol('1234567    \r\n', 2), 7, 'length of string ignoring spaces and mixed \\r\\n at eol')
   })
 })
 
@@ -165,13 +160,13 @@ describe('irc message', function () {
 
     assert.deepEqual(parseIrcLine('PRIVMSG  #kesor6  :some text').params, ['#kesor6', 'some text'])
     assert.deepEqual(parseIrcLine('PRIVMSG  #kesor6  :some text\r\n').params, ['#kesor6', 'some text'])
-    // assert.throws(() => { parseIrcLine('PRIVMSG Angel ') }, InvalidMessage)
   })
 })
 
 describe('external test suite', function () {
+  const yaml = require('yaml')
   const yamlFile = require('fs').readFileSync('test/msg-split.yaml', { encoding: 'utf-8' })
-  const tests = require('yaml').parse(yamlFile).tests
+  const tests = yaml.parse(yamlFile).tests
 
   for (const test of tests)
     it(`should pass ${JSON.stringify(test)}`, function () {
@@ -186,6 +181,6 @@ describe('external test suite', function () {
         delete result.user
         delete result.host
       }
-      assert.deepEqual(result, test.atoms, `External test: ${JSON.stringify(test)}`)
+      assert.deepEqual(result, test.atoms, yaml.stringify({ message: test.msg, input: test.input, expect: test.atoms, result }))
     })
 })

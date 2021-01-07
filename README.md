@@ -32,5 +32,5 @@ The object returned by `parseIrcLine(line: string)` has the following fields:
 |`source: string`                    | source of the message, often the user nick name
 |`user: string`                      | user sending the message
 |`host: string`                      | source host for this message
-|`tags: [{ string: string|boolean }]`| IRC message tags
+|`tags: [{ string: string\|boolean }]`| IRC message tags
 |`params: [string]`                  | IRC message parameters, including trailing parameter

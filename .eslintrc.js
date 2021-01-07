@@ -16,13 +16,11 @@ module.exports = {
     'mocha',
     'jsdoc',
     'babel',
-    'editorconfig',
   ],
   extends: [
     'eslint:recommended',
     'plugin:jsdoc/recommended',
     'plugin:node/recommended',
-    'plugin:editorconfig/noconflict',
   ],
   overrides: [{
     files: ['test/**/*.test.js'],

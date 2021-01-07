@@ -1,0 +1,18 @@
+version: "3.7"
+
+services:
+  node:
+    init: true
+    tty: true
+    image: node:${DOCKER_NODEJS_TAG:-14.15}
+    command: /bin/sh -c 'cd /app && node --version && npm i --no-optional --no-audit && exec npm run test:watch'
+    ports:
+    - ${NODE_DEBUG_PORT:-9229}
+    volumes:
+    - .:/app:cached
+    - npm_cache:/root/.npm:delegated
+    - node_modules:/app/node_modules:delegated
+
+volumes:
+  npm_cache:
+  node_modules:

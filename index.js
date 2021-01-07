@@ -16,7 +16,7 @@
  * @typedef {{
  *   verb: string,
  *   servername: string,
- *   nickname: string,
+ *   source: string,
  *   user: string,
  *   host: string,
  *   tags: { string: string|boolean },

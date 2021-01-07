@@ -1,6 +1,6 @@
 {
   "name": "irc-parse-line",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Parser of IRC Message Lines",
   "main": "index.js",
   "scripts": {
@@ -9,6 +9,9 @@
     "test:download": "node test/github-tests.js",
     "lint": "eslint *.js test/*.js"
   },
+  "files": [
+    "index.js"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/overlay5/irc-parse-line.git"

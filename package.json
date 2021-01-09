@@ -1,8 +1,9 @@
 {
   "name": "irc-parse-line",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Parser of IRC Message Lines",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "npm run -s test:download && mocha test/**/*.test.js && npm run -s lint",
     "test:watch": "npm run -s test:download && mocha --watch test/**/*.test.js",
@@ -10,7 +11,8 @@
     "lint": "eslint *.js test/*.js"
   },
   "files": [
-    "index.js"
+    "index.js",
+    "index.d.ts"
   ],
   "repository": {
     "type": "git",

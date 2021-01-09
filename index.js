@@ -19,7 +19,7 @@
  *   source: string,
  *   user: string,
  *   host: string,
- *   tags: { string: string|boolean },
+ *   tags: [ [string, string|boolean] ],
  *   params: [ string ]
  * }} ParsedIrcLine
  */
@@ -109,7 +109,7 @@ function parseIrcLine(line) {
                 return char
             }
           }).join('')
-        return [k, typeof v === 'undefined' ? '' : v]
+        return [k, typeof v === 'undefined' ? true : v]
       })
     pos = nonSpacePos(line, tagsEnd + 1)
   }

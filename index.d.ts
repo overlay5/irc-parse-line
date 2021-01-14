@@ -5,7 +5,7 @@ declare module 'irc-parse-line' {
     source: string;
     user: string;
     host: string;
-    tags: [string, string|boolean][];
+    tags: [string, string][];
     params: string[];
   }
   export function parseIrcLine(line: string): ParsedIrcEvent;

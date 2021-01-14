@@ -19,7 +19,7 @@
  *   source: string,
  *   user: string,
  *   host: string,
- *   tags: [ [string, string|boolean] ],
+ *   tags: [ [string, string] ],
  *   params: [ string ]
  * }} ParsedIrcLine
  */
@@ -27,9 +27,9 @@
 class InvalidMessage extends Error {
   message
 
-  constructor(message = 'Parsing failed') {
+  constructor(message/* = 'Parsing failed' */) {
     super(message)
-    this.message = `IRC Invalid Message: ${message}`
+    this.message = `IRC Invalid Message: ${message || 'Parsing failed'}`
   }
 }
 
@@ -109,7 +109,7 @@ function parseIrcLine(line) {
                 return char
             }
           }).join('')
-        return [k, typeof v === 'undefined' ? true : v]
+        return [k, typeof v === 'undefined' ? '' : v]
       })
     pos = nonSpacePos(line, tagsEnd + 1)
   }

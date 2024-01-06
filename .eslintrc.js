@@ -7,9 +7,10 @@ module.exports = {
     mocha: true
   },
   globals: {},
-  parser: 'babel-eslint',
+  parser: '@babel/eslint-parser',
   parserOptions: {
     ecmaVersion: 2020,
+    requireConfigFile: false,
   },
   plugins: [
     'node',

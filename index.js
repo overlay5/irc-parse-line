@@ -12,7 +12,6 @@
 
 /**
  * The returned object from a parsed IRC line
- *
  * @typedef {{
  *   verb: string,
  *   servername: string,
@@ -47,7 +46,6 @@ const TAGS_UNESCAPE = {
 /**
  * Find next non-space character starting from current position
  * Per RFC1459 multiple space separation is allowed
- *
  * @param {string} message the irc message
  * @param {number} currentPos index of the current position in message
  * @returns {number} first non space position after currentPos
@@ -62,7 +60,6 @@ function nonSpacePos(message, currentPos) {
 /**
  * Returns the position of last character in the message,
  * excluding any whitespace and/or \r\n characters at eol.
- *
  * @param {string} message the message
  * @param {number} currentPos current position in the message
  * @returns {number} the end of line position (length of message)
@@ -75,7 +72,6 @@ function findEol(message, currentPos) {
 
 /**
  * Parse a single line IRC message
- *
  * @param {string} line the irc message to parse
  * @returns {ParsedIrcLine} object with verb, tags and params of parsed irc message
  */
